@@ -1,0 +1,9 @@
+# 3rd party
+node_modules
+
+# Build artifacts
+d3-piano.d.ts
+d3-piano.js
+d3-piano.js.map
+d3-piano.es6.js
+d3-piano.es6.js.map
