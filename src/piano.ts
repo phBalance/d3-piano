@@ -73,16 +73,16 @@ function genKeyboardKey(position: number, octave: number, step: string, sign: st
 	const keyNum = (octave * 12) + (noteToKeyInOctave[note] - noteToKeyInOctave.A) + 1;
 
 	const key: IKey = {
-		keyId: keyId,
-		note: note,
-		step: step,
-		octave: octave,
-		sign: sign,
-		white: white,
-		exists: exists,
-		position: position,
+		keyId,
+		note,
+		step,
+		octave,
+		sign,
+		white,
+		exists,
+		position,
 		frequency: Math.pow(2, (keyNum - 49) / 12) * 440,
-		keyNum: keyNum,
+		keyNum,
 	};
 
 	return key;

@@ -1,7 +1,7 @@
 import { scaleLinear } from "d3-scale";
 import { create, select, Selection } from "d3-selection";
 
-import { getKeyboard, Keyboard, IKey } from "./piano";
+import { getKeyboard, IKey, Keyboard } from "./piano";
 
 // Reexport IKey since we use this file to generate the declaration file for this package.
 export { IKey } from "./piano";
@@ -141,7 +141,7 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 	function bindEvents(selection: any, stopKeyPressWithExit: boolean) {
 		const mouseUpNoteEvents = `mouseup.note${stopKeyPressWithExit ? "  mouseout.note" : ""}`;
 		const mouseUpShadeEvents = `mouseup.shade${stopKeyPressWithExit ? "  mouseout.shade" : ""}`;
-		
+
 		selection
 			.on("mousedown.note", function notePress(this: any) {
 				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
