@@ -14,6 +14,9 @@ export interface IPianoDrawConfig {
 	steps: string[];
 	octaves: number[];
 	invalidNotes: string[];
+
+	stopKeyPressWithExit: boolean;
+
 	width: number;
 }
 
@@ -86,31 +89,37 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 				.attr("height", function(d) {
 					return yScale(d.white ? 1 : keyHeightRatio);
 				})
-				.on("mousedown.note", function notePress(d) {
-					const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
-
-					noteActionCb(PianoKeyAction.PRESS_START, rect.datum());
-				})
-				// .on("mouseup.note mouseout.note", (d) => {
-				.on("mouseup.note", function noteRelease(d) { // FIXME: Temporary ... make it easy to do cords
-					const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
-
-					noteActionCb(PianoKeyAction.PRESS_END, rect.datum());
-				})
-				.on("mousedown.shade", function shadeKey(d) {
-					const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
-
-					rect.attr("fill", "red");
-				})
-				// .on("mouseup.shade mouseout.shade", function unshadeKey(d) {
-				.on("mouseup.shade", function unshadeKey(d) {
-					const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
-
-					rect.attr("fill", colourKey);
-				});
+				.call(bindEvents, config.stopKeyPressWithExit)
 
 	function colourKey(d: IKey): string {
 		return d.white ? "white" : "black";
+	}
+
+	function bindEvents(selection: any, stopKeyPressWithExit: boolean) {
+		const mouseUpNoteEvents = `mouseup.note${stopKeyPressWithExit ? "  mouseout.note" : ""}`;
+		const mouseUpShadeEvents = `mouseup.shade${stopKeyPressWithExit ? "  mouseout.shade" : ""}`;
+		
+		selection
+			.on("mousedown.note", function notePress(this: any) {
+				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+
+				noteActionCb(PianoKeyAction.PRESS_START, rect.datum());
+			})
+			.on(mouseUpNoteEvents, function noteRelease(this: any) {
+				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+
+				noteActionCb(PianoKeyAction.PRESS_END, rect.datum());
+			})
+			.on("mousedown.shade", function shadeKey(this: any) {
+				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+
+				rect.attr("fill", "red");
+			})
+			.on(mouseUpShadeEvents, function unshadeKey(this: any) {
+				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+
+				rect.attr("fill", colourKey);
+			});
 	}
 
 	// const labels = keyGroup
