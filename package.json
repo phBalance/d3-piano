@@ -1,6 +1,6 @@
 {
   "name": "@phbalance/d3-piano",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Configurable SVG piano drawn using D3.",
   "main": "d3-piano.js",
   "module": "d3-piano.es6.js",
