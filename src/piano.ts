@@ -68,10 +68,9 @@ const noteToKeyInOctave = {
 
 // helper function genKeyBoardKey
 function genKeyboardKey(position: number, octave: number, step: string, sign: string, white: boolean, exists: boolean) {
-	const note = octave + step;
-	const keyId = note + sign;
-	const keyName = step + sign;
-	const keyNum = (octave * 12) + (noteToKeyInOctave[keyName] - noteToKeyInOctave.A) + 1;
+	const keyId = octave + step + sign;
+	const note = step + sign;
+	const keyNum = (octave * 12) + (noteToKeyInOctave[note] - noteToKeyInOctave.A) + 1;
 
 	const key: IKey = {
 		keyId: keyId,

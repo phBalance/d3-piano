@@ -3,11 +3,18 @@ import { create, select, Selection } from "d3-selection";
 
 import { getKeyboard, Keyboard, IKey } from "./piano";
 
+// Reexport IKey since we use this file to generate the declaration file for this package.
 export { IKey } from "./piano";
 
 export enum PianoKeyAction {
 	PRESS_START = 0,
 	PRESS_END = 1,
+}
+
+export enum PianoKeyLabel {
+	NONE = 0,
+	SIMPLE = 1,
+	FULL = 2,
 }
 
 export interface IPianoDrawConfig {
@@ -17,9 +24,12 @@ export interface IPianoDrawConfig {
 
 	stopKeyPressWithExit: boolean;
 
+	keyLabel: PianoKeyLabel;
+
 	width: number;
 }
 
+// NOTE: Only expected to be called one time since there is no update or remove.
 export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKeyAction, keyInfo: IKey) => void, config: IPianoDrawConfig) {
 	const pianoKeys: Keyboard = getKeyboard(config.steps, config.octaves, config.invalidNotes);
 
@@ -62,41 +72,70 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 	const xScale = scaleLinear().range([0, width]).domain([minX, maxX]);
 	const yScale = scaleLinear().range([0, height]).domain([0, 1]);
 
-	const keyGroup = svg
+	const keyboardGroup = svg
 		.append("g")
 			.attr("class", "keyboard")
-			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+			.attr("font-size", "8px")
+			.attr("text-anchor", "middle");
 
-	const keyRects = keyGroup
-			.selectAll("rect")
-			.data<IKey>(pianoKeys);
-
-	keyRects
+	const keyGroup = keyboardGroup
+		.selectAll("g")
+		.data<IKey>(pianoKeys)
 		.enter()
-			.append("rect")
-				.attr("class", keyClass)
-				.attr("stroke", "black")
-				.attr("fill", keyColour)
-				.attr("x", function drawKeyPosition(d) {
-					return xScale(d.position + (d.position % 1) * (1 - keyWidthRatio)); // d.position is x.5 for black keys
+			.append("g")
+				.attr("class", "key");
+
+	keyGroup
+		.append("rect")
+			.attr("class", keyClass)
+			.attr("stroke", "black")
+			.attr("fill", keyColour)
+			.attr("x", function drawKeyPosition(d) {
+				return xScale(d.position + (d.position % 1) * (1 - keyWidthRatio)); // d.position is x.5 for black keys
+			})
+			.attr("y", function(d) {
+				return yScale(0);
+			})
+			.attr("width", function drawKeyWidth(d) {
+				return xScale(minX + (d.white ? 1 : keyWidthRatio));
+			})
+			.attr("height", function(d) {
+				return yScale(d.white ? 1 : keyHeightRatio);
+			})
+			.call(bindEvents, config.stopKeyPressWithExit);
+
+	if(config.keyLabel !== PianoKeyLabel.NONE) {
+		keyGroup
+			.append("text")
+				.attr("class", "key-label")
+				.text((d) => {
+					if(config.keyLabel === PianoKeyLabel.SIMPLE) {
+						return d.step + d.sign;
+					}
+
+					return d.keyId;
 				})
-				.attr("y", function(d) {
-					return yScale(0);
+				.attr("fill", labelColour)
+				.attr("pointer-events", "none")
+				.attr("x", (d) => {
+					return xScale(d.position + 0.5);
 				})
-				.attr("width", function drawKeyWidth(d) {
-					return xScale(minX + (d.white ? 1 : keyWidthRatio));
-				})
-				.attr("height", function(d) {
-					return yScale(d.white ? 1 : keyHeightRatio);
-				})
-				.call(bindEvents, config.stopKeyPressWithExit)
+				.attr("y", (d) => {
+					return yScale(0.9 * (d.white ? 1 : keyHeightRatio));
+				});
+	}
 
 	function keyColour(d: IKey): string {
 		return d.white ? "white" : "black";
 	}
 
+	function labelColour(d: IKey): string {
+		return d.white ? "black" : "white";
+	}
+
 	function keyClass(d: IKey): string {
-		return "key key-" + keyColour(d);
+		return "key-" + keyColour(d);
 	}
 
 	function bindEvents(selection: any, stopKeyPressWithExit: boolean) {
@@ -125,25 +164,4 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 				rect.attr("fill", keyColour);
 			});
 	}
-
-	// const labels = keyGroup
-	// 	.append("g")
-	// 		.attr("class", "labels")
-	// 		.attr("font-size", "6px")
-	// 		.selectAll("text")
-	// 		.data(pianoKeys);
-
-	// labels
-	// 	.enter()
-	// 		.append("text")
-	// 			.attr("class", "key-label")
-	// 			.text((d) => {
-	// 				return d.keyId;
-	// 			})
-	// 			.attr("x", (d) => {
-	// 				return xScale(d.position + (d.position % 1) * (1 - keyHeightRatio) / 2);
-	// 			})
-	// 			.attr("y", (d) => {
-	// 				return yScale(1);
-	// 			});
 }

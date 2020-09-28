@@ -15,12 +15,20 @@ npm install --save d3-scale # peer dependency
 The drawing of the piano into an SVG element is achieved by calling `drawPiano`. Provide the svg element, a callback to be invoked when an action is performed on a key (i.e. event generated for "key" pressed or depressed), and configuration details. The configuration includes: 
 
 ```typescript
+export enum PianoKeyLabel {
+	NONE = 0,
+	SIMPLE = 1,
+	FULL = 2,
+}
+
 export interface IPianoDrawConfig {
 	steps: string[];
 	octaves: number[];
 	invalidNotes: string[];
 
-	stopKeyPressWithExit: boolean;
+    stopKeyPressWithExit: boolean;
+    
+	keyLabel: PianoKeyLabel;
 
 	width: number;
 }
@@ -32,12 +40,13 @@ export interface IPianoDrawConfig {
 `invalidNotes` is a list of notes to exclude from the provided set of steps and octaves.
 `width` is the width of the piano drawn in the svg in pixels.
 `stopKeyPressWithExit` indicates if `mouseout` events should be bound to the keys. If `true`, if the mouse cursor leaves the bounds of the piano key it will be the same as if the key were no longer pressed even if the mouse is still held down. If `false` there is no `mouseout` event and by pushing the mouse down, moving the cursor out of that key, and then releasing the mouse you will not generate a key released message. You can use this approach to crudely generate chords.
+`keyLabel` indicates what kind of label the key should have: none, a simple note name, or a full name of octave plus the simple note name.
 
 
 #### Example
 An example of use:
 ```typescript
-import { drawPiano, PianoKeyAction, IKey } from "@phbalance/d3-piano";
+import { drawPiano, IKey, PianoKeyAction, PianoKeyLabel } from "@phbalance/d3-piano";
 
 ...
 
@@ -59,6 +68,7 @@ const config: IKey = {
         "8C", "8D", "8E", "8F", "8G", "8A", "8B",
     ],
     stopKeyPressWithExit: true,
+    keyLabel: PianoKeyLabel.NONE,
     width: 800
 };
 
