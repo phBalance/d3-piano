@@ -74,9 +74,9 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 	keyRects
 		.enter()
 			.append("rect")
-				.attr("class", "key")
+				.attr("class", keyClass)
 				.attr("stroke", "black")
-				.attr("fill", colourKey)
+				.attr("fill", keyColour)
 				.attr("x", function drawKeyPosition(d) {
 					return xScale(d.position + (d.position % 1) * (1 - keyWidthRatio)); // d.position is x.5 for black keys
 				})
@@ -91,8 +91,12 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 				})
 				.call(bindEvents, config.stopKeyPressWithExit)
 
-	function colourKey(d: IKey): string {
+	function keyColour(d: IKey): string {
 		return d.white ? "white" : "black";
+	}
+
+	function keyClass(d: IKey): string {
+		return "key key-" + keyColour(d);
 	}
 
 	function bindEvents(selection: any, stopKeyPressWithExit: boolean) {
@@ -118,7 +122,7 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 			.on(mouseUpShadeEvents, function unshadeKey(this: any) {
 				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
 
-				rect.attr("fill", colourKey);
+				rect.attr("fill", keyColour);
 			});
 	}
 
