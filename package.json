@@ -29,6 +29,9 @@
   ],
   "author": "Peter Hunnisett <peter@softwarebalm.com> (https://softwarebalm.com)",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "homepage": "https://github.com/phBalance/d3-piano#readme",
   "peerDependencies": {
