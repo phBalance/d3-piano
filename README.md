@@ -45,7 +45,7 @@ export interface IPianoDrawConfig {
 
 `steps` is an array of the names of the keys starting from left most (lowest frequency) key.
 
-`stopKeyPressWithExit` indicates if `mouseout` events should be bound to the keys. If `true`, if the mouse cursor leaves the bounds of the piano key it will be the same as if the key were no longer pressed even if the mouse is still held down. If `false` there is no `mouseout` event and by pushing the mouse down, moving the cursor out of that key, and then releasing the mouse you will not generate a key released message. You can use this approach to crudely generate chords.
+`stopKeyPressWithExit` indicates if `mouseout` or `pointerout` events should be bound to the keys. PointerEvents are a consolidation of mouse and touch events. If `true`, if the mouse/pointer cursor leaves the bounds of the piano key it will be the same as if the key were no longer pressed even if the mouse is still held down. If `false` there is no `mouseout` or `pointerout` event bound. Thus by pushing the mouse down, moving the cursor out of that key, and then releasing the mouse you will not generate a key released message. For touch devices you probably just need to drag your finger a bit. You can use this approach to crudely generate chords.
 
 
 
@@ -81,6 +81,10 @@ const config: IKey = {
 // Note, if you're using a class method as the passed in callback you may need to do something like this.keyAction.bind(this)
 drawPiano(svgToDrawInto, keyAction, config);
 ```
+
+### Touch Support
+
+Touch support via [PointerEvents ](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) was added in version 0.1.1.
 
 ## Reporting Issues
 
