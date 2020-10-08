@@ -86,6 +86,24 @@ drawPiano(svgToDrawInto, keyAction, config);
 
 Touch support via [PointerEvents ](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) was added in version 0.1.1.
 
+### Being Notified of a Key Press
+
+As mentioned above, the 2nd parameter of `drawPiano` is a function that is called as a result of keys being pressed by a user.
+
+### Programmatically Generating a Key Press
+
+This was added in 0.1.1.
+
+Normally, a user will use an input device to manipulate the keyboard elements. However, it is possible to programmatically generate key presses 
+in a way similar to a player piano moves keys without the user. For this use the `press` and `release` keys of the object returned by `drawPiano`.
+
+Both the `press` and `release` methods have the same signature:
+```typescript
+type CreatePianoKeyActionFunction = (containingSvgEle: SVGSVGElement, note: string, octave?: number) => void;
+```
+
+Thus, provide the svg element that you passed into `drawPiano` as the `containingSvgEle` and then the `note` and, optionally, `octave`. If you do not provide a value for `octave` then any octave will be used and multiple key presses will be genereated at the "same time" (technically sequential mouse events).
+
 ## Reporting Issues
 
 You can report [bugs here](https://github.com/phBalance/d3-piano/issues). Feel free to make suggestions as well.

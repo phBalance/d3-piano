@@ -15,6 +15,12 @@ import {
 // Reexport IKey since we use this file to generate the declaration file for this package.
 export { IKey } from "./piano";
 
+export type CreatePianoKeyActionFunction = (containingSvgEle: SVGSVGElement, note: string, octave?: number) => void;
+export interface ICreatePianoKeyActions {
+	press: CreatePianoKeyActionFunction;
+	release: CreatePianoKeyActionFunction;
+}
+
 export enum PianoKeyAction {
 	PRESS_START = 0,
 	PRESS_END = 1,
@@ -39,7 +45,11 @@ export interface IPianoDrawConfig {
 }
 
 // NOTE: Only expected to be called one time since there is no update or remove.
-export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKeyAction, keyInfo: IKey) => void, config: IPianoDrawConfig) {
+export function drawPiano(
+	svgEle: SVGSVGElement,
+	noteActionCb: (action: PianoKeyAction, keyInfo: IKey) => void,
+	config: IPianoDrawConfig)
+	: ICreatePianoKeyActions {
 	const pianoKeys: Keyboard = getKeyboard(config.steps, config.octaves, config.invalidNotes);
 
 	// NOTE: Typical piano with 88 keys dimenions:
@@ -144,7 +154,27 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 	}
 
 	function keyClass(d: IKey): string {
-		return "key-" + keyColour(d);
+		return `key-${keyColour(d)} key-note-${d.note} key-octave-${d.octave}`;
+	}
+
+	function generateKeyPress(containingSvgEle: SVGSVGElement, note: string, octave?: number): void {
+		const mouseDownEvent = new MouseEvent("mousedown");
+
+		generateKeyEvent(containingSvgEle, mouseDownEvent, note, octave);
+	}
+
+	function generateKeyRelease(containingSvgEle: SVGSVGElement, note: string, octave?: number): void {
+		const mouseUpEvent = new MouseEvent("mouseup");
+
+		generateKeyEvent(containingSvgEle, mouseUpEvent, note, octave);
+	}
+
+	function generateKeyEvent(containingSvgEle: SVGSVGElement, mouseEvent: MouseEvent, note: string, octave?: number): void {
+		const keyRectEles = containingSvgEle.querySelectorAll(`rect.key-note-${note}${octave ? ".key-octave-" + octave : ""}`);
+
+		keyRectEles.forEach((keyRectEle) => {
+			keyRectEle.dispatchEvent(mouseEvent);
+		})
 	}
 
 	function notePress(rect: Selection<SVGRectElement, IKey, null, undefined>): void {
@@ -187,5 +217,10 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
 				noteRelease(rect);
 			})
+	}
+
+	return {
+		press: generateKeyPress,
+		release: generateKeyRelease,
 	}
 }
