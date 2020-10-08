@@ -1,7 +1,16 @@
 import { scaleLinear } from "d3-scale";
-import { create, select, Selection } from "d3-selection";
+import {
+	create,
+	event as d3Event,
+	select,
+	Selection
+} from "d3-selection";
 
-import { getKeyboard, IKey, Keyboard } from "./piano";
+import {
+	getKeyboard,
+	IKey,
+	Keyboard
+} from "./piano";
 
 // Reexport IKey since we use this file to generate the declaration file for this package.
 export { IKey } from "./piano";
@@ -138,30 +147,45 @@ export function drawPiano(svgEle: SVGSVGElement, noteActionCb: (action: PianoKey
 		return "key-" + keyColour(d);
 	}
 
+	function notePress(rect: Selection<SVGRectElement, IKey, null, undefined>): void {
+		noteActionCb(PianoKeyAction.PRESS_START, rect.datum());
+
+		rect.attr("fill", "red");
+	}
+
+	function noteRelease(rect: Selection<SVGRectElement, IKey, null, undefined>): void {
+		noteActionCb(PianoKeyAction.PRESS_END, rect.datum());
+
+		rect.attr("fill", keyColour);
+	}
+
 	function bindEvents(selection: any, stopKeyPressWithExit: boolean) {
-		const mouseUpNoteEvents = `mouseup.note${stopKeyPressWithExit ? "  mouseout.note" : ""}`;
-		const mouseUpShadeEvents = `mouseup.shade${stopKeyPressWithExit ? "  mouseout.shade" : ""}`;
+		const keyUpNoteEvents = `mouseup pointerup${stopKeyPressWithExit ? "  pointerout mouseout" : ""}`;
 
 		selection
-			.on("mousedown.note", function notePress(this: any) {
-				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+			.on("mousedown pointerdown", function keyPressEvent(this: any, event2x: MouseEvent | PointerEvent) {
+				// Since we're registering 2 handlers, for compability with mouse and pointer events, we don't want
+				// this to fire twice.
+				// Provide backwards compatibility to version 1 and 2 of selection. Version 1.x provides the
+				// event via a global (which is what requires the peer dependency). Version 2.x provides the
+				// event via a parameter.
+				const ev = d3Event || event2x;
+				ev.preventDefault();
 
-				noteActionCb(PianoKeyAction.PRESS_START, rect.datum());
+				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+				notePress(rect);
 			})
-			.on(mouseUpNoteEvents, function noteRelease(this: any) {
-				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+			.on(keyUpNoteEvents, function noteReleaseEvent(this: any, event2x: MouseEvent | PointerEvent) {
+				// Since we're registering 2 handlers, for compability with mouse and pointer events, we don't want
+				// this to fire twice.
+				// Provide backwards compatibility to version 1 and 2 of selection. Version 1.x provides the
+				// event via a global (which is what requires the peer dependency). Version 2.x provides the
+				// event via a parameter.
+				const ev = d3Event || event2x;
+				ev.preventDefault();
 
-				noteActionCb(PianoKeyAction.PRESS_END, rect.datum());
+				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
+				noteRelease(rect);
 			})
-			.on("mousedown.shade", function shadeKey(this: any) {
-				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
-
-				rect.attr("fill", "red");
-			})
-			.on(mouseUpShadeEvents, function unshadeKey(this: any) {
-				const rect: Selection<SVGRectElement, IKey, null, undefined> = select(this);
-
-				rect.attr("fill", keyColour);
-			});
 	}
 }
