@@ -26,7 +26,7 @@ export interface IPianoDrawConfig {
 	octaves: number[];
 	invalidNotes: string[];
 
-    stopKeyPressWithExit: boolean;
+	stopKeyPressWithExit: boolean;
     
 	keyLabel: PianoKeyLabel;
 
@@ -107,3 +107,4 @@ Thus, provide the svg element that you passed into `drawPiano` as the `containin
 ## Reporting Issues
 
 You can report [bugs here](https://github.com/phBalance/d3-piano/issues). Feel free to make suggestions as well.
+
