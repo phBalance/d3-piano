@@ -6,7 +6,7 @@ Configurable SVG piano drawn with generated events for key press and release usi
 
 ```
 npm install --save @phbalance/d3-piano
-npm install --save d3-select # peer dependency
+npm install --save d3-selection # peer dependency
 npm install --save d3-scale # peer dependency
 ```
 
