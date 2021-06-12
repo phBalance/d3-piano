@@ -111,16 +111,16 @@ export function drawPiano(
 			.attr("stroke", "black")
 			.attr("fill", keyColour)
 			.attr("x", function drawKeyPosition(d) {
-				return xScale(d.position + (d.position % 1) * (1 - keyWidthRatio)); // d.position is x.5 for black keys
+				return xScale(d.position + (d.position % 1) * (1 - keyWidthRatio)) || null; // d.position is x.5 for black keys
 			})
 			.attr("y", function(d) {
-				return yScale(0);
+				return yScale(0) || null;
 			})
 			.attr("width", function drawKeyWidth(d) {
-				return xScale(minX + (d.white ? 1 : keyWidthRatio));
+				return xScale(minX + (d.white ? 1 : keyWidthRatio)) || null;
 			})
 			.attr("height", function(d) {
-				return yScale(d.white ? 1 : keyHeightRatio);
+				return yScale(d.white ? 1 : keyHeightRatio) || null;
 			})
 			.call(bindEvents, config.stopKeyPressWithExit);
 
@@ -138,10 +138,10 @@ export function drawPiano(
 				.attr("fill", labelColour)
 				.attr("pointer-events", "none")
 				.attr("x", (d) => {
-					return xScale(d.position + 0.5);
+					return xScale(d.position + 0.5) || null;
 				})
 				.attr("y", (d) => {
-					return yScale(0.9 * (d.white ? 1 : keyHeightRatio));
+					return yScale(0.9 * (d.white ? 1 : keyHeightRatio)) || null;
 				});
 	}
 
